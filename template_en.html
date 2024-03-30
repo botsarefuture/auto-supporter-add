@@ -22,7 +22,7 @@
     <meta content="Mielenterveys kuuluu kaikille" name="application-name" />
     <meta content="#ffffff" name="msapplication-TileColor" />
     <meta content="/icons/browserconfig.xml?v=2" name="msapplication-config" />
-    <meta content="#f87c56" name="theme-color" />
+    <meta content="#4caf50" name="theme-color" />
     <!-- Meta tags added dynamically -->
     <meta
         content="Osallistu mielenosoitukseen Senaatintorilla 3.6.2024 ja vaadi muutosta Suomen mielenterveyspalveluihin. Liity mukaan ja osoita tukesi!"
@@ -102,6 +102,21 @@
             font-family: Arial, Helvetica, sans-serif;
         }
     </style>
+
+    <style>
+        /* Existing styles */
+
+        /* Add this block to customize link styles */
+        a.supporters{
+            color: #ffffff; /* Change link color */
+            text-decoration: underline white; /* Add underline for normal links */
+            transition: color 0.3s ease; /* Smooth color transition */
+        }
+
+        a:hover {
+            color: #000000; /* Change link color on hover */
+        }
+    </style>
 </head>
 
 <body>
@@ -110,9 +125,9 @@
         {{ supporters }}
     </section>
     <section>
-        <h2>Tule tukijaksi</h2>
+        <h2>Become a supporter?</h2>
         <centered>
-            <p>Ota yhteyttä: <a href="mailto:info@mielenterveyskaikille.fi">info@mielenterveyskaikille.fi</a></p>
+            <p>Contact us: <a href="mailto:info@mielenterveyskaikille.fi">info@mielenterveyskaikille.fi</a></p>
         </centered>
     </section>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
