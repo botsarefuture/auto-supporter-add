@@ -33,7 +33,7 @@ def build_html_content(program):
     
     return rendered_fi
 
-def upload_to_github(html_fi):
+def upload_to_github(html_fi, html_en):
     """
     Uploads HTML content to GitHub repository.
 
@@ -65,6 +65,15 @@ def upload_to_github(html_fi):
     commit_message = "Add rendered HTML file (Finnish)"
     repo.update_file(file_name, commit_message, html_fi, sha=blob_sha, branch=main_branch.name)
 
+# Get the contents of the file, if it exists, for Finnish version
+    file_name = "en/program.html"
+    file_content = repo.get_contents(file_name, ref=main_branch.name)
+    blob_sha = file_content.sha
+    
+    # Create a new file in the repository for Finnish version
+    commit_message = "Add rendered HTML file (English)"
+    repo.update_file(file_name, commit_message, html_en, sha=blob_sha, branch=main_branch.name)
+    
     print("Upload to GitHub completed.")
 
 import csv
@@ -148,13 +157,21 @@ def program():
             prev_start_hour = start_hour
             prev_end_hour = end_hour
 
-    # Render the program template with the merged activities
-    with open("template_fi.html", "r", encoding="utf-8") as f:
-        html_context = f.read()
-    template = Template(html_context)
-    print(merged_activities)
-    rendered_template = template.render(merged_activities=merged_activities)
-    return rendered_template
+    langs = ["fi", "en"]
+    
+    files = []
+    
+    for lang in langs:
+        # Render the program template with the merged activities
+        with open(f"template_{lang}.html", "r", encoding="utf-8") as f:
+            html_context = f.read()
+        
+        template = Template(html_context)
+        rendered_template = template.render(merged_activities=merged_activities)
+        
+        files.append(rendered_template)
+        
+    return files[0], files[1]
 
 
 
