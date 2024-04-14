@@ -110,7 +110,12 @@ def fetch_supporters():
         for row in parsed_data:
             redata = {"organization": row.get("Taho:"), "contact": row.get("Yhteyshenkilö:"), "contact_from_us": row.get("Yhteyshenkilö meiltä:"), "status": row.get("Status:"), "website": row.get("Nettisivu:", None)}
             supporters.append(redata)
+        
+        # Sort supporters alphabetically by organization name
+        supporters.sort(key=lambda x: x["organization"].lower())
+        
     return supporters
+
 
 def build_html_row(data):
     """

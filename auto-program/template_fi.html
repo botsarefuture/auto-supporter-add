@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-
 <html lang="fi">
-
 <head>
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Mielenterveys kuuluu kaikille - Tukijat</title>
+    <title>Mielenterveys kuuluu kaikille - Ohjelma</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
     <script crossorigin="anonymous" src="https://kit.fontawesome.com/60c01f192e.js"></script>
-    <script defer="" src="/static/js/autoheader.js"></script>
-    <script defer="" src="/static/js/footer.js"></script>
+    <script defer src="/static/js/autoheader.js"></script>
+    <script defer src="/static/js/footer.js"></script>
     <link href="/icons/apple-touch-icon.png?v=2" rel="apple-touch-icon" sizes="180x180" />
     <link href="/icons/favicon-32x32.png?v=2" rel="icon" sizes="32x32" type="image/png" />
     <link href="/icons/favicon-194x194.png?v=2" rel="icon" sizes="194x194" type="image/png" />
@@ -54,25 +52,88 @@
       }
     }
   </script>
-  <link href="/static/css/supporters.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ohjelma</title>
+    <link rel="stylesheet" type="text/css" href="https://mielenterveyskaikille.fi/static/css/program.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
 
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-top: 20px;
+        }
 
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .event-group {
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .event-group td {
+            background-color: #fff;
+            font-weight: normal;
+        }
+
+        .paljastetaan-pian {
+            font-style: italic;
+            color: red;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
-
 <body>
-    <section>
-        <h2>Tukijat</h2>
-       {{ supporters }}
-    </section>
-    <section>
-        <h2>Tule tukijaksi</h2>
-        <centered>
-            <p>Ota yhteyttä: <a href="mailto:info@mielenterveyskaikille.fi">info@mielenterveyskaikille.fi</a></p>
-        </centered>
-    </section>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <h1>Ohjelma</h1>
+    <table>
+        <tr>
+            <th>Aika</th>
+            <th>Paikka</th>
+            <th>Aktiviteetti</th>
+        </tr>
+        {% for row in merged_activities %}
+            {% if row['Aika'] != "" %}
+                <tr {% if row['Aktiviteetti'] == 'Vapaa' %}class="event-group paljastetaan-pian"{% else %}class="event-group"{% endif %}>
+                    <td>{{ row['Aika'] }}</td>
+                    <td>{{ row['Paikka'] }}</td>
+                    <td>{% if row['Aktiviteetti'] == 'Vapaa' %}Paljastetaan pian{% else %}{{ row['Aktiviteetti'] }}{% endif %}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
 </body>
-
 </html>
