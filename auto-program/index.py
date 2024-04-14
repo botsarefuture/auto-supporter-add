@@ -43,37 +43,36 @@ def upload_to_github(html_fi, html_en):
     """
     print("Started uploading to GitHub...")
 
-
     with open("../config.json") as f:
         data = json.load(f)
     
     # Authenticate with GitHub using personal access token
     g = Github(data.get("token"))
 
-    # Get the repository where you want to upload the file
+    # Get the repository where you want to upload the files
     repo = g.get_repo("botsarefuture/mielenterveyskaikille.fi")
 
     # Get the main branch of the repository
     main_branch = repo.get_branch("main")
 
-    # Get the contents of the file, if it exists, for Finnish version
-    file_name = "program.html"
-    file_content = repo.get_contents(file_name, ref=main_branch.name)
-    blob_sha = file_content.sha
-    
-    # Create a new file in the repository for Finnish version
-    commit_message = "Add rendered HTML file (Finnish)"
-    repo.update_file(file_name, commit_message, html_fi, sha=blob_sha, branch=main_branch.name)
+    # Get the contents of the files, if they exist, for both versions
+    files = ["program.html", "en/program.html"]
+    commit_message = "Add rendered HTML files (Finnish and English)"
+    html_contents = [html_fi, html_en]
 
-# Get the contents of the file, if it exists, for Finnish version
-    file_name = "en/program.html"
-    file_content = repo.get_contents(file_name, ref=main_branch.name)
-    blob_sha = file_content.sha
-    
-    # Create a new file in the repository for Finnish version
-    commit_message = "Add rendered HTML file (English)"
-    repo.update_file(file_name, commit_message, html_en, sha=blob_sha, branch=main_branch.name)
-    
+    # Collect changes to be committed
+    for file_name, html_content in zip(files, html_contents):
+        file_content = repo.get_contents(file_name, ref=main_branch.name)
+        blob_sha = file_content.sha
+        
+        # Collect changes for this file
+        repo.update_file(
+            file_name,
+            commit_message,
+            html_content,
+            blob_sha
+        )
+
     print("Upload to GitHub completed.")
 
 import csv
@@ -179,5 +178,7 @@ if __name__ == "__main__":
     # Build HTML content for English and Finnish versions
     #content_fi = build_html_content(program())
 
+    html_fi, html_en = program()
+    
     # Upload HTML content to GitHub
-    upload_to_github(program())
+    upload_to_github(html_fi, html_en)
