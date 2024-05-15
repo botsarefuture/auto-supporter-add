@@ -30,13 +30,13 @@
         content="Join the protest at Senate Square on 6/3/2024 and demand change to Finland's mental health services. Join us and show your support!"
         property="og:description" />
     <meta content="website" property="og:type" />
-    <meta content="https://mentalhealthforall.fi/" property="og:url" />
-    <meta content="https://mentalhealthforall.fi/static/mentalhealth1.svg" property="og:image" />
+    <meta content="https://mielenterveyskaikille.fi/" property="og:url" />
+    <meta content="https://mielenterveyskaikille.fi/static/mentalhealth1.svg" property="og:image" />
     <meta content="Mental Health for All" name="twitter:title" />
     <meta
         content="Join the protest at Senate Square on 6/3/2024 and demand change to Finland's mental health services. Join us and show your support!"
         name="twitter:description" />
-    <meta content="https://mentalhealthforall.fi/static/mentalhealth1.svg" name="twitter:image" />
+    <meta content="https://mielenterveyskaikille.fi/static/mentalhealth1.svg" name="twitter:image" />
     <meta content="summary_large_image" name="twitter:card" />
     <script type="application/ld+json">
     {
@@ -55,7 +55,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Program</title>
-    <link rel="stylesheet" type="text/css" href="https://mentalhealthforall.fi/static/css/program.css">
+    <link rel="stylesheet" type="text/css" href="https://mielenterveyskaikille.fi/static/css/program.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -127,10 +127,10 @@
         </tr>
         {% for row in merged_activities %}
             {% if row['Time'] != "" %}
-                <tr {% if row['Activity'] == 'Free' %}class="event-group soon-revealed"{% else %}class="event-group"{% endif %}>
-                    <td>{{ row['Time'] }}</td>
-                    <td>{{ row['Location'] }}</td>
-                    <td>{% if row['Activity'] == 'Free' %}Soon to be revealed{% else %}{{ row['Activity'] }}{% endif %}</td>
+                <tr {% if row['Aktiviteetti'] == 'Vapaa' %}class="event-group soon-revealed"{% else %}class="event-group"{% endif %}>
+                    <td>{{ row['Aika'] }}</td>
+                    <td>{{ row['Paikka'] }}</td>
+                    <td>{% if row['Aktiviteetti'] == 'Vapaa' %}Soon to be revealed{% else %}{{ row['Activity'] }}{% endif %}</td>
                 </tr>
             {% endif %}
         {% endfor %}
