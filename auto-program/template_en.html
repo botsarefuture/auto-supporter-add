@@ -127,7 +127,7 @@
         </tr>
         {% for row in merged_activities %}
             {% if row['Time'] != "" %}
-                <tr {% if row['Aktiviteetti'] == 'Vapaa' %}class="event-group soon-revealed"{% else %}class="event-group"{% endif %}>
+                <tr {% if row['Aktiviteetti'] == 'Vapaa' %}class="event-group paljastetaan-pian"{% else %}class="event-group"{% endif %}>
                     <td>{{ row['Aika'] }}</td>
                     <td>{{ row['Paikka'] }}</td>
                     <td>{% if row['Aktiviteetti'] == 'Vapaa' %}Soon to be revealed{% else %}{{ row['Activity'] }}{% endif %}</td>
