@@ -47,45 +47,9 @@ This repository includes two main scripts:
     }
     ```
 
-4. **Prepare Templates:**
-
-    Create Jinja2 template files `template_en.html` and `template_fi.html` in the project directory.
-
-    **English Template (`template_en.html`):**
-    ```html
-    <!DOCTYPE html>
-    <html>
-    <head><title>Program</title></head>
-    <body>
-    <h1>Program</h1>
-    <ul>
-    {% for activity in merged_activities %}
-        <li>{{ activity.Aika }} - {{ activity.Paikka }}: {{ activity.Aktiviteetti }} (Duration: {{ activity.Duration }} minutes)</li>
-    {% endfor %}
-    </ul>
-    </body>
-    </html>
-    ```
-
-    **Finnish Template (`template_fi.html`):**
-    ```html
-    <!DOCTYPE html>
-    <html>
-    <head><title>Ohjelma</title></head>
-    <body>
-    <h1>Ohjelma</h1>
-    <ul>
-    {% for activity in merged_activities %}
-        <li>{{ activity.Aika }} - {{ activity.Paikka }}: {{ activity.Aktiviteetti }} (Kesto: {{ activity.Duration }} minuuttia)</li>
-    {% endfor %}
-    </ul>
-    </body>
-    </html>
-    ```
-
 ## Scripts
 
-### 1. `fetcher.py`
+### 1. `supporter/index.py`
 
 This script fetches supporter data from the provided CSV URL, processes it, and renders it into HTML.
 
@@ -96,10 +60,11 @@ This script fetches supporter data from the provided CSV URL, processes it, and 
 **Usage:**
 
 ```bash
-python fetcher.py
+cd supporter
+python index.py
 ```
 
-### 2. `program_updater.py`
+### 2. `program/index.py`
 
 This script fetches program data, processes it, renders it into HTML, and uploads the HTML files to GitHub.
 
@@ -111,7 +76,8 @@ This script fetches program data, processes it, renders it into HTML, and upload
 **Usage:**
 
 ```bash
-python program_updater.py
+cd program
+python index.py
 ```
 
 ## Comparing Outputs
