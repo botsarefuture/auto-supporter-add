@@ -1,91 +1,40 @@
 import requests
 import csv
-import re
-from jinja2 import Template
-import os
-from github import Github
 import json
-
-def render(filename, program):
-    # Load Jinja2 template for English version from file
-    with open(filename, "r", encoding="utf-8") as template_file:
-        template_content = template_file.read()
-
-    # Create Jinja2 template object
-    template = Template(template_content)
-
-    # Render the template with supporter data
-    rendered = template.render(program=program)
-    return rendered
-
-def build_html_content(program):
-    """
-    Builds HTML content using Jinja2 templates for English and Finnish versions.
-
-    Args:
-        supporters (list): List of supporter data.
-
-    Returns:
-        str: Rendered HTML content for English version.
-        str: Rendered HTML content for Finnish version.
-    """
-    rendered_fi = render("template_fi.html", program)
-    
-    return rendered_fi
-
-def upload_to_github(html_fi, html_en):
-    """
-    Uploads HTML content to GitHub repository.
-
-    Args:
-        html_en (str): HTML content for English version.
-        html_fi (str): HTML content for Finnish version.
-    """
-    print("Started uploading to GitHub...")
-
-    with open("../config.json") as f:
-        data = json.load(f)
-    
-    # Authenticate with GitHub using personal access token
-    g = Github(data.get("token"))
-
-    # Get the repository where you want to upload the files
-    repo = g.get_repo("botsarefuture/mielenterveyskaikille.fi")
-
-    # Get the main branch of the repository
-    main_branch = repo.get_branch("main")
-
-    # Get the contents of the files, if they exist, for both versions
-    files = ["program.html", "en/program.html"]
-    commit_message = "Add rendered HTML files (Finnish and English)"
-    html_contents = [html_fi, html_en]
-
-    # Collect changes to be committed
-    for file_name, html_content in zip(files, html_contents):
-        file_content = repo.get_contents(file_name, ref=main_branch.name)
-        blob_sha = file_content.sha
-        
-        # Collect changes for this file
-        repo.update_file(
-            file_name,
-            commit_message,
-            html_content,
-            blob_sha
-        )
-
-    print("Upload to GitHub completed.")
-
-import csv
-import requests
-from flask import Flask, render_template
 from jinja2 import Template
 from datetime import datetime
+from github import Github
+from flask import Flask
 
-# Initialize Flask app
-app = Flask(__name__)
+# Load configuration from a JSON file
+def load_config(config_file="../config.json"):
+    with open(config_file) as f:
+        return json.load(f)
 
-# Define the URL of the CSV file
-csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ61stoiZBMjsu5oftPdKw0fmwRVLiRRxZRLkjEFyHWSu6SFaQsxJyzI2Xy21vQfsLlR0mZ5X63Zc_v/pub?gid=889992138&single=true&output=csv"
+# Render HTML content using Jinja2 templates
+def render_template(filename, context):
+    with open(filename, "r", encoding="utf-8") as template_file:
+        template_content = template_file.read()
+    template = Template(template_content)
+    return template.render(context)
+
+# Upload HTML content to GitHub repository
+def upload_to_github(token, html_fi, html_en):
+    print("Started uploading to GitHub...")
+    g = Github(token)
+    repo = g.get_repo("botsarefuture/mielenterveyskaikille.fi")
+    main_branch = repo.get_branch("main")
+    files = [("program.html", html_fi), ("en/program.html", html_en)]
+    
+    for file_name, html_content in files:
+        try:
+            file_content = repo.get_contents(file_name, ref=main_branch.name)
+            blob_sha = file_content.sha
+            repo.update_file(file_name, "Update HTML content", html_content, blob_sha, branch=main_branch.name)
+        except Exception as e:
+            print(f"Error updating {file_name}: {e}")
+
+    print("Upload to GitHub completed.")
 
 # Function to convert time string to datetime object
 def time_to_datetime(time_str):
@@ -102,51 +51,35 @@ def format_time(time_obj):
 def from_start_to_end(start, end):
     return int(((end - start).total_seconds() / 60) / 5)
 
-# Route for the program website
-def program():
-    # Fetch the CSV data from the URL
+# Fetch and process the CSV data, then render HTML
+def process_csv_and_render_html(csv_url):
     response = requests.get(csv_url)
     csv_data = response.content.decode('utf-8').splitlines()
-
-    # Parse the CSV data
     csv_reader = csv.DictReader(csv_data)
-    data = list(csv_reader)
-
-    # Initialize variables to hold previous location and time
+    
     prev_location = None
     prev_start_hour = None
     prev_end_hour = None
     merged_activities = []
-
     
-    # Convert the time slots to multi-row format
-    for row in data:
+    for row in csv_reader:
         if '-' in row['Aika']:
             start, end = row['Aika'].split(' - ')
             start_hour = time_to_datetime(start)
             end_hour = time_to_datetime(end)
-
-            # Fill in previous location if missing
+            
             if not row['Paikka'] and prev_location:
                 row['Paikka'] = prev_location
 
-            # Update previous location and time
             prev_location = row['Paikka']
-            
-
-            # Calculate duration for current row
             duration = from_start_to_end(start_hour, end_hour)
             row['Duration'] = duration
-
-            # Check if the current activity is "Vapaa" and merge consecutive "Vapaa" activities
+            
             if row['Aktiviteetti'] == 'Vapaa':
                 if merged_activities and merged_activities[-1]['Aktiviteetti'] == 'Vapaa':
-                    # If the current activity starts immediately after the previous one ends, update the end time
-                    print(start_hour, prev_end_hour)
                     if start_hour == prev_end_hour:
                         merged_activities[-1]['Aika'] = f"{merged_activities[-1]['Aika'].split(' - ')[0]} - {format_time(end_hour)}"
                     else:
-                        # If there's a gap between activities, add a new row
                         merged_activities.append(row)
                 else:
                     merged_activities.append(row)
@@ -156,29 +89,35 @@ def program():
             prev_start_hour = start_hour
             prev_end_hour = end_hour
 
-    langs = ["fi", "en"]
+    return merged_activities
+
+# Flask app initialization (if needed for web deployment)
+app = Flask(__name__)
+
+# Route for rendering the program HTML
+@app.route('/program')
+def program_route():
+    config = load_config()
+    csv_url = config["csv_url"]
+    merged_activities = process_csv_and_render_html(csv_url)
     
     files = []
+    langs = ["fi", "en"]
     
     for lang in langs:
-        # Render the program template with the merged activities
-        with open(f"template_{lang}.html", "r", encoding="utf-8") as f:
-            html_context = f.read()
+        rendered_html = render_template(f"template_{lang}.html", {"merged_activities": merged_activities})
+        files.append(rendered_html)
         
-        template = Template(html_context)
-        rendered_template = template.render(merged_activities=merged_activities)
-        
-        files.append(rendered_template)
-        
-    return files[0], files[1]
-
-
+    html_fi, html_en = files
+    return html_fi, html_en
 
 if __name__ == "__main__":
-    # Build HTML content for English and Finnish versions
-    #content_fi = build_html_content(program())
+    config = load_config()
+    csv_url = config["csv_url"]
+    token = config["github_token"]
 
-    html_fi, html_en = program()
+    merged_activities = process_csv_and_render_html(csv_url)
     
-    # Upload HTML content to GitHub
-    upload_to_github(html_fi, html_en)
+    html_fi, html_en = [render_template(f"template_{lang}.html", {"merged_activities": merged_activities}) for lang in ["fi", "en"]]
+    
+    upload_to_github(token, html_fi, html_en)
